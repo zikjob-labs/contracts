@@ -1,0 +1,47 @@
+{
+  "LSP3Profile": {
+    "name": "string",
+    "description": "string",
+    "links": [
+      {
+        "title": "string",
+        "url": "string"
+      }
+    ],
+    "tags": ["string", "string"],
+    "avatar": [
+      {
+        "hashFunction": "keccak256(bytes)",
+        "hash": "string",
+        "url": "string",
+        "fileType": "string"
+      }
+    ],
+    "profileImage": [
+      {
+        "width": "Number",
+        "height": "Number",
+        "hashFunction": "keccak256(bytes)",
+        "hash": "string",
+        "url": "string"
+      },
+      {
+        "address": "Address",
+        "tokenId": "32bytes"
+      }
+    ],
+    "backgroundImage": [
+      {
+        "width": "Number",
+        "height": "Number",
+        "hashFunction": "keccak256(bytes)",
+        "hash": "string",
+        "url": "string"
+      },
+      {
+        "address": "Address",
+        "tokenId": "32bytes"
+      }
+    ]
+  }
+}

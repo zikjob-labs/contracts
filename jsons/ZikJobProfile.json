@@ -1,0 +1,191 @@
+{
+  "ZikJobProfile": {
+    "name": "string",
+    "description": "string",
+    "links": [
+      {
+        "title": "string",
+        "url": "string"
+      }
+    ],
+    "tags": ["string", "string"],
+    "avatar": [
+      {
+        "hashFunction": "keccak256(bytes)",
+        "hash": "string",
+        "url": "string",
+        "fileType": "string"
+      }
+    ],
+    "profileImage": [
+      {
+        "width": "Number",
+        "height": "Number",
+        "hashFunction": "keccak256(bytes)",
+        "hash": "string",
+        "url": "string"
+      },
+      {
+        "address": "Address",
+        "tokenId": "32bytes"
+      }
+    ],
+    "backgroundImage": [
+      {
+        "width": "Number",
+        "height": "Number",
+        "hashFunction": "keccak256(bytes)",
+        "hash": "string",
+        "url": "string"
+      },
+      {
+        "address": "Address",
+        "tokenId": "32bytes"
+      }
+    ],
+    "basicInfo": {
+      "specialize": "string",
+      "industry": "string",
+      "yearOfExp": "string",
+      "location": "string"
+    },
+    "education": [
+      {
+        "school": "string",
+        "degree": "string",
+        "fieldOfStudy": "string",
+        "startDateMonth": "Number",
+        "startDateYear": "Number",
+        "endDateMonth": "Number",
+        "endDateYear": "Number",
+        "grade": "string",
+        "description": "string",
+        "images": [
+          {
+            "width": "Number",
+            "height": "Number",
+            "hashFunction": "keccak256(bytes)",
+            "hash": "string",
+            "url": "string"
+          },
+          {
+            "address": "Address",
+            "tokenId": "32bytes"
+          }
+        ]
+      }
+    ],
+    "position": [
+      {
+        "title": "string",
+        "employmentType": "string",
+        "companyName": "string",
+        "location": "string",
+        "isCurrentlyWorking": "bytes",
+        "startDateMonth": "Number",
+        "startDateYear": "Number",
+        "endDateMonth": "Number",
+        "endDateYear": "Number",
+        "industry": "string",
+        "description": "string",
+        "images": [
+          {
+            "width": "Number",
+            "height": "Number",
+            "hashFunction": "keccak256(bytes)",
+            "hash": "string",
+            "url": "string"
+          },
+          {
+            "address": "Address",
+            "tokenId": "32bytes"
+          }
+        ]
+      }
+    ],
+    "careerBreak": [
+      {
+        "type": "string",
+        "location": "string",
+        "isBreakNow": "bytes",
+        "startDateMonth": "Number",
+        "startDateYear": "Number",
+        "endDateMonth": "Number",
+        "endDateYear": "Number",
+        "industry": "string",
+        "description": "string",
+        "images": [
+          {
+            "width": "Number",
+            "height": "Number",
+            "hashFunction": "keccak256(bytes)",
+            "hash": "string",
+            "url": "string"
+          },
+          {
+            "address": "Address",
+            "tokenId": "32bytes"
+          }
+        ]
+      }
+    ],
+    "skill": [{ "name": "string", "rate": "Number" }],
+    "certification": [
+      {
+        "name": "string",
+        "organization": "string",
+        "isExpired": "bytes",
+        "issueDateMonth": "Number",
+        "issueDateYear": "Number",
+        "expirationDateMonth": "Number",
+        "expirationDateYear": "Number",
+        "credentialID": "string",
+        "credentialURL": "string"
+      }
+    ],
+    "course": [{ "name": "string", "description": "string" }],
+    "achievement": [
+      {
+        "address": "Address",
+        "tokenId": "32bytes"
+      }
+    ],
+    "portfolio": [
+      {
+        "name": "string",
+        "url": "string",
+        "description": "string",
+        "isCurrentlyWorking": "bytes",
+        "startDateMonth": "Number",
+        "startDateYear": "Number",
+        "endDateMonth": "Number",
+        "endDateYear": "Number",
+        "images": [
+          {
+            "width": "Number",
+            "height": "Number",
+            "hashFunction": "keccak256(bytes)",
+            "hash": "string",
+            "url": "string"
+          },
+          {
+            "address": "Address",
+            "tokenId": "32bytes"
+          }
+        ]
+      },
+      {
+        "hashFunction": "keccak256(bytes)",
+        "hash": "string",
+        "url": "string",
+        "fileType": "string"
+      }
+    ],
+    "cv": {
+      "hashFunction": "keccak256(bytes)",
+      "hash": "string",
+      "url": "string",
+      "fileType": "string"
+    }
+  }
+}
