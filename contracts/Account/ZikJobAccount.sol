@@ -88,4 +88,21 @@ abstract contract ZikJobAccount is
         }
         emit UniversalReceiver(_msgSender(), _typeId, returnValue, _data);
     }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC725XCore, ERC725YCore)
+        returns (bool)
+    {
+        return
+            interfaceId == _INTERFACEID_ERC1271 ||
+            interfaceId == _INTERFACEID_LSP0 ||
+            interfaceId == _INTERFACEID_LSP1 ||
+            super.supportsInterface(interfaceId);
+    }
 }

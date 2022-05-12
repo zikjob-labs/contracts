@@ -15,4 +15,17 @@ contract ZikJobEmployer is ZikJobAccount, ERC725 {
         value = hex"abe425d6";
         _setData(_LSP3_STANDARD_UNIVERSAL_PROFILE_KEY, value);
     }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ZikJobAccount, ERC725)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 }

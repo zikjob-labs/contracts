@@ -5,29 +5,34 @@ const {
   decodeKeyValue,
 } = require('@erc725/erc725.js/build/main/src/lib/utils');
 const ZikJobProfileMetadata = require('../schemas/ZikJobProfileMetadata.json');
-const delay = (ms) => new Promise(resolve => setTimeout(() => resolve(), ms));
+const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 
-async function deployAuthAndZikkie() {
-  const owner = await ethers.getSigner();
+async function deployAuth() {
   const ZikJobAuth = await ethers.getContractFactory('ZikJobAuth');
   const zikjobAuthContract = await ZikJobAuth.deploy();
   await zikjobAuthContract.deployed();
-
   console.log('ZikJobAuth deployed to:', zikjobAuthContract.address);
 
+  return zikjobAuthContract;
+}
+
+async function deployZikkie(zikjobAuthContract) {
+  const owner = await ethers.getSigner();
   const zikkieAddr = await zikjobAuthContract.callStatic.createZikkie();
   await zikjobAuthContract.createZikkie();
   console.log(`${owner.address} with ZikJob Profile ${zikkieAddr}`);
   const Zikkie = await ethers.getContractFactory('Zikkie');
   const zikkieContract = Zikkie.attach(zikkieAddr);
 
-  return { zikjobAuthContract, zikkieContract };
+  return zikkieContract;
 }
+
 async function main() {
-  const zikkieAddr = '0x83193aDAa5f7A7E23116D3bC8c8cD12444fC7A39';
+  const zikkieAddr = '';
   let zikkieContract;
   if (zikkieAddr == '') {
-    zikkieContract = (await deployAuthAndZikkie()).zikkieContract;
+    const authContract = await deployAuth();
+    zikkieContract = await deployZikkie(authContract);
   } else {
     const Zikkie = await ethers.getContractFactory('Zikkie');
     zikkieContract = Zikkie.attach(zikkieAddr);
@@ -38,10 +43,10 @@ async function main() {
   let json = {
     LSP3Profile: {
       name: 'LSPProfileTest',
-      description: 'Test set data 1234567890',
+      description: 'Test set data',
     },
   };
-  let url = 'https://fake'; // <== upload to IPFS then get url
+  let url = 'ipfs://fake'; // <== upload to IPFS then get url
   let value = encodeKeyValue(
     lsp3ProfileSchema.valueContent,
     lsp3ProfileSchema.valueType,
@@ -51,7 +56,7 @@ async function main() {
     }
   );
   await zikkieContract['setData(bytes32,bytes)'](key, value);
-  
+
   await delay(30000); // wait for mine new block
   const dataProfileEncoded = await zikkieContract['getData(bytes32)'](key);
   console.log(dataProfileEncoded);

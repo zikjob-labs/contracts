@@ -24,6 +24,21 @@ describe('Zikkie', async function () {
     expect(contract).to.be.not.null;
   });
 
+  it('Support InterfaceID', async function () {
+    const erc725XInterfaceID = '0x44c028fe',
+      erc725YInterfaceID = '0x714df77c',
+      lsp0InterfaceID = '0x481e0fe8',
+      lsp1InterfaceID = '0x6bb56a14';
+    expect(await contract.supportsInterface(erc725XInterfaceID)).to.be.equal(
+      true
+    );
+    expect(await contract.supportsInterface(erc725YInterfaceID)).to.be.equal(
+      true
+    );
+    expect(await contract.supportsInterface(lsp0InterfaceID)).to.be.equal(true);
+    expect(await contract.supportsInterface(lsp1InterfaceID)).to.be.equal(true);
+  });
+
   it('Get and set data', async function () {
     const standardLSP0Schema = ZikJobProfileMetadata[0];
     let key = encodeKeyName(standardLSP0Schema.name);

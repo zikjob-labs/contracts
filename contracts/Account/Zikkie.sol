@@ -18,4 +18,18 @@ contract Zikkie is ZikJobAccount, ERC725 {
         value = hex"b5bea950";
         _setData(_STANDARD_ZIKJOB_PROFILE_KEY, value);
     }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ZikJobAccount, ERC725)
+        returns (bool)
+    {
+        return
+            interfaceId == _INTERFACEID_ERC725Y_OLD ||
+            super.supportsInterface(interfaceId);
+    }
 }
