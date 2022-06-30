@@ -2,6 +2,7 @@ require('dotenv').config();
 const { task } = require('hardhat/config');
 
 require('@nomiclabs/hardhat-waffle');
+require('hardhat-gas-reporter');
 
 const privateKey = process.env.PRIVATE_KEY;
 const infuraProjectID = process.env.INFURA_PROJECT_ID;

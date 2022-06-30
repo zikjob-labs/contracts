@@ -16,7 +16,7 @@ contract ZikJobAuth is Ownable {
     event ZikkieCreated(address indexed zikkieAddress);
     event EmployerCreated(address indexed employerAddress);
 
-    function createZikkie() external onlyOwner returns (address zikkieAddress) {
+    function createZikkie() external returns (address zikkieAddress) {
         bytes memory bytecode = type(Zikkie).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(_msgSender(), address(this)));
         zikkieAddress = Create2.deploy(
@@ -29,7 +29,7 @@ contract ZikJobAuth is Ownable {
         emit ZikkieCreated(zikkieAddress);
     }
 
-    function createEmployer() external onlyOwner returns (address employerAddress) {
+    function createEmployer() external returns (address employerAddress) {
         bytes memory bytecode = type(ZikJobEmployer).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(_msgSender(), address(this)));
         employerAddress = Create2.deploy(

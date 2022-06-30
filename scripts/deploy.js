@@ -1,11 +1,15 @@
 const { ethers } = require('hardhat');
 const {
-  encodeKeyName,
   encodeKeyValue,
   decodeKeyValue,
 } = require('@erc725/erc725.js/build/main/src/lib/utils');
+const {
+  encodeKeyName,
+} = require('@erc725/erc725.js/build/main/src/lib/encodeKeyName');
 const ZikJobProfileMetadata = require('../schemas/ZikJobProfileMetadata.json');
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
+
+const zikkieAddr = '';
 
 async function deployAuth() {
   const ZikJobAuth = await ethers.getContractFactory('ZikJobAuth');
@@ -27,8 +31,7 @@ async function deployZikkie(zikjobAuthContract) {
   return zikkieContract;
 }
 
-async function main() {
-  const zikkieAddr = '';
+async function deploy() {
   let zikkieContract;
   if (zikkieAddr == '') {
     const authContract = await deployAuth();
@@ -36,8 +39,13 @@ async function main() {
   } else {
     const Zikkie = await ethers.getContractFactory('Zikkie');
     zikkieContract = Zikkie.attach(zikkieAddr);
+    console.log(`ZikJob Profile address is: ${zikkieAddr}`);
   }
 
+  return zikkieContract;
+}
+
+async function setData(zikkieContract) {
   const lsp3ProfileSchema = ZikJobProfileMetadata[1];
   key = encodeKeyName(lsp3ProfileSchema.name);
   let json = {
@@ -56,6 +64,7 @@ async function main() {
     }
   );
   await zikkieContract['setData(bytes32,bytes)'](key, value);
+  console.log('setData with LSP3Profile');
 
   await delay(30000); // wait for mine new block
   const dataProfileEncoded = await zikkieContract['getData(bytes32)'](key);
@@ -67,6 +76,12 @@ async function main() {
   );
   console.log('LSP0Profile decoded:');
   console.log(dataProfileDecoded);
+}
+
+async function main() {
+  const zikkieContract = await deploy();
+  await delay(30000);
+  await setData({ zikkieContract });
 }
 
 main()

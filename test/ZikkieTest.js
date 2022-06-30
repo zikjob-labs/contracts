@@ -1,11 +1,12 @@
 const { expect } = require('chai');
 const { ethers } = require('hardhat');
-const { utils } = ethers;
 const {
-  encodeKeyName,
   encodeKeyValue,
   decodeKeyValue,
 } = require('@erc725/erc725.js/build/main/src/lib/utils');
+const {
+  encodeKeyName
+} = require('@erc725/erc725.js/build/main/src/lib/encodeKeyName');
 const ZikJobProfileMetadata = require('../schemas/ZikJobProfileMetadata.json');
 
 describe('Zikkie', async function () {

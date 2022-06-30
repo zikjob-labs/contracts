@@ -19,7 +19,7 @@ abstract contract ZikJobAccount is
     event ValueReceived(address indexed sender, uint256 indexed value);
 
     receive() external payable {
-        emit ValueReceived(_msgSender(), msg.value);
+        emit ValueReceived(msg.sender, msg.value);
     }
 
     /**
@@ -62,18 +62,12 @@ abstract contract ZikJobAccount is
         external
         virtual
         override
+        payable
         returns (bytes memory returnValue)
     {
         bytes memory data = _getData(_LSP1_UNIVERSAL_RECEIVER_DELEGATE_KEY);
         if (data.length >= 20) {
-            address universalReceiverDelegate;
-
-            assembly {
-                universalReceiverDelegate := div(
-                    mload(add(add(data, 0x20), 0)),
-                    0x1000000000000000000000000
-                )
-            }
+            address universalReceiverDelegate = address(bytes20(data));
 
             if (
                 ERC165Checker.supportsInterface(
@@ -83,10 +77,10 @@ abstract contract ZikJobAccount is
             ) {
                 returnValue = ILSP1UniversalReceiverDelegate(
                     universalReceiverDelegate
-                ).universalReceiverDelegate(_msgSender(), _typeId, _data);
+                ).universalReceiverDelegate(msg.sender, msg.value, _typeId, _data);
             }
         }
-        emit UniversalReceiver(_msgSender(), _typeId, returnValue, _data);
+        emit UniversalReceiver(msg.sender, msg.value, _typeId, returnValue, _data);
     }
 
     /**
