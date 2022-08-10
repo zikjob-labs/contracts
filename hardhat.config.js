@@ -26,6 +26,9 @@ task(
   'gasPrice',
   'Print the gas price of network',
   async (taskArgs, { ethers }) => {
+    console.log('-------------Network------------');
+    console.log(await ethers.provider.getNetwork());
+    console.log('--------------------------------');
     console.log(
       `Gas Price is: ${ethers.utils.formatUnits(
         await ethers.provider.getGasPrice(),
@@ -34,6 +37,18 @@ task(
     );
   }
 );
+
+task('send', 'Send token to other address')
+  .addParam('account', 'Account address')
+  .setAction(async (taskArgs, { ethers }) => {
+    const addr1 = await ethers.getSigner();
+    await addr1
+      .sendTransaction({
+        to: taskArgs.account,
+        value: ethers.utils.parseEther('1'),
+      })
+      .then((tx) => console.log(tx));
+  });
 
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
@@ -51,9 +66,9 @@ module.exports = {
     ganache: {
       url: 'http://127.0.0.1:8545',
     },
-    lukso_testnet_14: {
-      url: 'https://rpc.l14.lukso.network',
-      chainId: 22,
+    lukso_testnet_16: {
+      url: 'https://rpc.l16.lukso.network',
+      chainId: 2828,
       accounts: [privateKey],
     },
     ropsten: {

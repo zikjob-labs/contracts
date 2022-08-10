@@ -15,6 +15,7 @@
     "contract/**/*.sol"
   ],
   "devDependencies": {
+    "@chainlink/contracts": "^0.4.1",
     "@erc725/erc725.js": "^0.14.2",
     "@erc725/smart-contracts": "^3.1.1",
     "@lukso/lsp-smart-contracts": "^0.6.1",
