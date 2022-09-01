@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/interfaces/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-import "../interfaces/IZikAvatar.sol";
+import '@openzeppelin/contracts/interfaces/IERC20.sol';
+import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
+import '@openzeppelin/contracts/utils/Strings.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
+import '@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol';
+import '@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol';
+import '../interfaces/IZikAvatar.sol';
 
-contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
+contract ZikAvatar is IZikAvatar, ERC721Enumerable, VRFConsumerBaseV2, Ownable {
     using Strings for string;
 
     VRFCoordinatorV2Interface COORDINATOR;
@@ -60,6 +60,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
     Avatar[] private avatars;
 
     mapping(uint256 => Pool) pools;
+    mapping(uint256 => bool) public poolIdIsRequested;
     mapping(uint256 => bool) public poolIdIsUsed;
     mapping(uint256 => uint256[]) public poolIdToRandomWords;
     mapping(uint256 => bool) public isGeneratedAttribute;
@@ -70,7 +71,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
         address _busd,
         address _vrfCoordinator,
         bytes32 _keyHash
-    ) VRFConsumerBaseV2(_vrfCoordinator) ERC721("Zikkie Avatar", "ZJSA") {
+    ) VRFConsumerBaseV2(_vrfCoordinator) ERC721('Zikkie Avatar', 'ZJSA') {
         COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
         BUSD = IERC20(_busd);
         subscriptionId = _subscriptionId;
@@ -86,48 +87,62 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
         return tokenURI(tokenId);
     }
 
+    function getOwnedTokenIds(address owner)
+        public
+        view
+        returns (uint256[] memory)
+    {
+        uint256 numberOfNFT = balanceOf(owner);
+        uint256[] memory tokenIds = new uint256[](numberOfNFT);
+        for (uint256 i = 0; i < numberOfNFT; i++) {
+            uint256 tokenId = tokenOfOwnerByIndex(owner, i);
+            tokenIds[i] = tokenId;
+        }
+
+        return tokenIds;
+    }
+
     function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
         require(
             _isApprovedOrOwner(_msgSender(), tokenId),
-            "ERC721: transfer caller is not owner nor approved"
+            'ERC721: transfer caller is not owner nor approved'
         );
         _baseTokenURI = _tokenURI;
     }
 
     function safeMint(uint32 quantity) internal {
         uint256 newTokenId;
-        for (uint i = 0; i < quantity; i++) {
+        for (uint256 i = 0; i < quantity; i++) {
             newTokenId = avatars.length;
             avatars.push(Avatar(0, 0));
             _safeMint(_msgSender(), newTokenId);
         }
     }
 
-    function mintZikAvatarByOwner() external onlyOwner {
-        require(balanceOf(owner()) == 0);
+    function mintZikAvatarByOwner(uint32 quantity) external onlyOwner {
+        require(balanceOf(owner()) + quantity <= 210);
 
-        uint32 quantity = 210;
         safeMint(quantity);
         emit NFTMinted(owner(), quantity);
     }
 
-    function mintZikAvatar(uint32 quantity) external override payable {
-        require(quantity > 0, "Invalid quantity");
+    function mintZikAvatar(uint32 quantity) external payable override {
+        require(quantity > 0, 'Invalid quantity');
         require(
             avatars.length + quantity <= MAX_AVATARS,
-            "Reached the maximum number of avatars"
+            'Reached the maximum number of avatars'
         );
-        require(msg.value >= quantity * BNB_PRICE, "Not enough amount to buy");
+        require(msg.value >= quantity * BNB_PRICE, 'Not enough amount to buy');
 
         safeMint(quantity);
         emit NFTMinted(owner(), quantity);
     }
 
     function mintZikAvatarWithBUSD(uint32 quantity) external override {
-        require(quantity > 0, "Invalid quantity");
+        require(quantity > 0, 'Invalid quantity');
         require(
             avatars.length + quantity <= MAX_AVATARS,
-            "Reached the maximum number of avatars"
+            'Reached the maximum number of avatars'
         );
         require(
             BUSD.transferFrom(msg.sender, address(this), quantity * BUSD_PRICE)
@@ -139,12 +154,8 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
 
     function addToPool(uint256[] memory tokenIds) external override {
         require(tokenIds.length > 0);
-        require(
-            pools[currentPool].quantity + tokenIds.length <= 50,
-            "Exceed number of avatar"
-        );
         bool isValidTokenId = true;
-        for (uint i = 0; i < tokenIds.length; i++) {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
             if (
                 !_isApprovedOrOwner(_msgSender(), tokenIds[i]) ||
                 isGeneratedAttribute[tokenIds[i]]
@@ -153,7 +164,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
                 break;
             }
         }
-        require(isValidTokenId, "Token ID not valid!");
+        require(isValidTokenId, 'Token ID not valid!');
 
         if (!pools[currentPool].isAdded[_msgSender()]) {
             pools[currentPool].requester.push(_msgSender());
@@ -164,6 +175,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
             pools[currentPool].quantity -
             pools[currentPool].requesterToTokenIds[_msgSender()].length +
             tokenIds.length;
+        require(pools[currentPool].quantity <= 50, 'Exceed number of avatar');
         pools[currentPool].requesterToTokenIds[_msgSender()] = tokenIds;
     }
 
@@ -180,7 +192,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
     }
 
     function requestZikAttribute() external onlyOwner returns (uint256) {
-        require(!poolIdIsUsed[currentPool]);
+        require(!poolIdIsRequested[currentPool]);
         uint32 quantity = uint32(pools[currentPool].quantity);
         uint256 requestId = COORDINATOR.requestRandomWords(
             keyHash,
@@ -190,6 +202,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
             quantity
         );
         emit NFTRequested(requestId, quantity);
+        poolIdIsRequested[currentPool] = true;
 
         return requestId;
     }
@@ -199,8 +212,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
         override
     {
         poolIdToRandomWords[currentPool] = randomWords;
-        poolIdIsUsed[currentPool] = false;
-        emit NFTFullfilled(requestId, randomWords);
+        emit NFTFulfilled(requestId, randomWords);
     }
 
     function generateAttribute() external onlyOwner {
@@ -208,21 +220,22 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
 
         uint256[] memory randomWords = poolIdToRandomWords[currentPool];
         uint256[] memory tokenIds = new uint256[](randomWords.length);
-        uint t = 0;
+        uint256 t = 0;
         address[] memory requesters = pools[currentPool].requester;
-        for (uint i = 0; i < requesters.length; i++) {
+        for (uint256 i = 0; i < requesters.length; i++) {
             address requester = requesters[i];
             uint256[] memory requesterToTokenIds = pools[currentPool]
                 .requesterToTokenIds[requester];
 
-            for (uint j = 0; j < requesterToTokenIds.length; j++) {
+            for (uint256 j = 0; j < requesterToTokenIds.length; j++) {
                 uint256 tokenId = requesterToTokenIds[j];
-                tokenIds[t++] = tokenId;
+                tokenIds[t] = tokenId;
                 isGeneratedAttribute[tokenId] = true;
+                t++;
             }
         }
 
-        for (uint i = 0; i < randomWords.length; i++) {
+        for (uint256 i = 0; i < randomWords.length; i++) {
             uint256 randomNumber = randomWords[i];
             uint256 rare = randomNumber % 14;
             uint256 profit = ((randomNumber % 400) / 100);
@@ -280,7 +293,7 @@ contract ZikAvatar is IZikAvatar, ERC721, VRFConsumerBaseV2, Ownable {
     function withdraw() external payable onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0);
-        (bool success, ) = (_msgSender()).call{value: balance}("");
+        (bool success, ) = (_msgSender()).call{value: balance}('');
         require(success);
     }
 

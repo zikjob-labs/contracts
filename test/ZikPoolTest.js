@@ -71,7 +71,11 @@ describe.only('ZikPool', async function () {
     await stakingToken.generateAttribute();
 
     const ZikPool = await ethers.getContractFactory('ZikPool');
-    contract = await ZikPool.deploy(rewardToken.address, stakingToken.address);
+    contract = await ZikPool.deploy(
+      rewardToken.address,
+      stakingToken.address,
+      7
+    );
     await contract.deployed();
     await rewardToken.transfer(contract.address, toWei(1500000));
   });
@@ -88,6 +92,7 @@ describe.only('ZikPool', async function () {
   it('Stake', async function () {
     await stakingToken.connect(addr1).setApprovalForAll(contract.address, true);
     await contract.connect(addr1).stake([1, 2, 3]);
+    expect(await contract.totalStakeUsers()).to.be.equal(1);
     await expect(contract.connect(addr1).stake([1, 4, 5])).to.be.revertedWith(
       'Token id has been staked'
     );
@@ -212,6 +217,7 @@ describe.only('ZikPool', async function () {
     await contract.connect(addr1).unStake();
 
     expect(await contract.totalStaked()).to.be.equal(0);
+    expect(await contract.totalStakeUsers()).to.be.equal(0);
     expect(await contract.earned(addr1.address))
       .to.be.gte(earnedBeforeHour)
       .to.be.lte(earnedAfterHour);

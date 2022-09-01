@@ -13,19 +13,14 @@ async function main() {
   const ZikPool = await ethers.getContractFactory('ZikPool');
 
   if (zikPoolAddress == '') {
-    const SimpleToken = await ethers.getContractFactory('SimpleToken');
-    const rewardToken = await SimpleToken.deploy('BUSD', 'BUSD');
-    await rewardToken.deployed();
-    console.log('SimpleToken (BUSD) deployed to:', rewardToken.address);
-
+    const duration = 30;
     const contract = await ZikPool.deploy(
-      rewardToken.address,
-      zikAvatarAddress
+      '0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee', // BUSD Contract Testnet
+      zikAvatarAddress,
+      duration
     );
     await contract.deployed();
     console.log('ZikPool deployed to:', contract.address);
-
-    await rewardToken.transfer(contract.address, toWei(1500000));
   } else {
     const owner = await ethers.getSigner();
     const contract = ZikPool.attach(zikPoolAddress);

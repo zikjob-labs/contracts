@@ -29,5 +29,9 @@
     "hardhat": "^2.9.9",
     "hardhat-gas-reporter": "^1.0.8",
     "solidity-bytes-utils": "^0.8.0"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true
   }
 }

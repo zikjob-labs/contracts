@@ -94,6 +94,7 @@ contract VRFCoordinatorV2 is VRFCoordinatorV2Interface {
             words
         );
         (bool success, ) = _consumer.call{gas: req.callbackGasLimit}(callReq);
+        require(success, "failed to call rawFulfillRandomWords");
 
         uint96 payment = uint96(
             BASE_FEE + ((startGas - gasleft()) * GAS_PRICE_LINK)

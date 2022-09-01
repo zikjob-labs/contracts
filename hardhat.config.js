@@ -29,6 +29,7 @@ task(
     console.log('-------------Network------------');
     console.log(await ethers.provider.getNetwork());
     console.log('--------------------------------');
+    console.log(await ethers.provider.getGasPrice());
     console.log(
       `Gas Price is: ${ethers.utils.formatUnits(
         await ethers.provider.getGasPrice(),
@@ -48,6 +49,14 @@ task('send', 'Send token to other address')
         value: ethers.utils.parseEther('1'),
       })
       .then((tx) => console.log(tx));
+  });
+
+task('mineBlock', 'mine block')
+  .addParam('second', 'Second')
+  .setAction(async (taskArgs, { ethers, network }) => {
+    await network.provider.send('evm_increaseTime', [parseInt(taskArgs.second)]);
+    await network.provider.send('evm_mine');
+    console.log('Mine done!');
   });
 
 // You need to export an object to set up your config
@@ -81,6 +90,10 @@ module.exports = {
     },
     bsc_testnet: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545/',
+      accounts: [privateKey],
+    },
+    bsc: {
+      url: 'https://bsc-dataseed.binance.org/',
       accounts: [privateKey],
     },
   },

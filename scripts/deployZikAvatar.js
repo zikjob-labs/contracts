@@ -5,18 +5,31 @@ const delay = (s) =>
   new Promise((resolve, _) => setTimeout(() => resolve(), s * 1000));
 const toWei = (value) => utils.parseEther(value.toString());
 
+const tokenURI = 'https://ipfs.zikjob.com/ipfs/QmSVTx8GPu9XijjJt6f152cBBHjkNtKvY7tbayKMxMmsDM/';
+
 async function main() {
   let deployedContract;
   const deployedAddress = '';
   const ZikAvatar = await ethers.getContractFactory('ZikAvatar');
   if (deployedAddress == '') {
+    // BSC Testnet
     deployedContract = await ZikAvatar.deploy(
       1251,
-      'https://ipfs.zikjob.com/ipfs/',
-      '0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee', // BUSD Contract Testnet
-      '0x6A2AAd07396B36Fe02a22b33cf443582f682c82f',
-      '0xd4bb89654db74673a187bd804519e65e3f71a52bc55f11da7601a13dcf505314'
+      tokenURI,
+      '0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee', // BUSD Contract
+      '0x6A2AAd07396B36Fe02a22b33cf443582f682c82f', // VRF Coordinator
+      '0xd4bb89654db74673a187bd804519e65e3f71a52bc55f11da7601a13dcf505314' // Key Hash
     );
+
+    // BSC Mainnet
+    // deployedContract = await ZikAvatar.deploy(
+    //   436,
+    //   tokenURI,
+    //   '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD Contract
+    //   '0xc587d9053cd1118f25F645F9E08BB98c9712A4EE', // VRF Coordinator
+    //   '0x114f3da0a805b6a67d6e9cd2ec746f7028f1b7376365af575cfea3550dd1aa04' // Key Hash
+    // );
+
     await deployedContract.deployed();
     console.log('ZikAvatar Contract deployed to:', deployedContract.address);
   } else {
@@ -30,7 +43,7 @@ async function main() {
       console.log(`RequestId (${requestId}) with ${quantity} random number`);
     });
 
-    deployedContract.on('NFTFullfilled', async (requestId, randomWords) => {
+    deployedContract.on('NFTFulfilled', async (requestId, randomWords) => {
       console.log(`RequestId (${requestId}) get random number`);
       console.log(randomWords);
     });
@@ -41,6 +54,10 @@ async function main() {
       // const avatarGenerated = await deployedContract.getInfoAvatar(tokenId);
       // console.log(avatarGenerated);
     });
+
+    // Mint NFT for ZikTeam
+    // await deployedContract.mintZikAvatarByOwner(20);
+    // console.log('Mint ZikAvatar for ZikTeam done!');
 
     await deployedContract.mintZikAvatar(30, { value: toWei(0.03) });
     await delay(10);

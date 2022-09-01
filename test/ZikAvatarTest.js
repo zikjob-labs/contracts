@@ -50,9 +50,10 @@ describe('ZikAvatar', async function () {
 
   it('Mint Zik Avatar for Team', async function () {
     expect(await contract.balanceOf(owner.address)).to.be.equal(0);
-    await contract.mintZikAvatarByOwner();
-    expect(await contract.balanceOf(owner.address)).to.be.equal(210);
-    await expect(contract.mintZikAvatarByOwner()).to.be.reverted;
+    await contract.mintZikAvatarByOwner(50);
+    expect(await contract.balanceOf(owner.address)).to.be.equal(50);
+    await contract.mintZikAvatarByOwner(160);
+    await expect(contract.mintZikAvatarByOwner(1)).to.be.reverted;
   });
 
   it('Buy box failed', async function () {
@@ -72,6 +73,15 @@ describe('ZikAvatar', async function () {
   it('Buy box success', async function () {
     await contract.connect(addr1).mintZikAvatar(10, { value: toWei(0.1) });
     expect(await contract.balanceOf(addr1.address)).to.be.equal(10);
+    expect(
+      (await contract.getOwnedTokenIds(addr1.address)).map((item) =>
+        item.toString()
+      )
+    ).to.include.members(
+      Array(10)
+        .fill(1)
+        .map((_, idx) => idx.toString())
+    );
     await contract.connect(addr1).mintZikAvatar(100, { value: toWei(1) });
     expect(await contract.balanceOf(addr1.address)).to.be.equal(110);
     expect(await contract.getNumberOfAvatars()).to.be.equal(110);
@@ -111,7 +121,6 @@ describe('ZikAvatar', async function () {
     await contract.connect(addr1).mintZikAvatar(15, { value: toWei(0.15) });
     await contract.connect(addr3).mintZikAvatar(30, { value: toWei(0.3) });
 
-    await contract.createNewPool();
     const currentPool = await contract.currentPool();
 
     await expect(contract.connect(addr1).addToPool([])).to.be.reverted;
@@ -144,7 +153,9 @@ describe('ZikAvatar', async function () {
       (await contract.getTokenIdsByRequester(currentPool, addr2.address)).length
     ).to.be.equal(35);
 
-    await expect(contract.connect(addr3).addToPool([80])).to.be.reverted;
+    await expect(contract.connect(addr3).addToPool([80])).to.be.revertedWith(
+      'Exceed number of avatar'
+    );
   });
 
   it('Remove from pool', async function () {
@@ -153,7 +164,6 @@ describe('ZikAvatar', async function () {
     await contract.connect(addr1).mintZikAvatar(15, { value: toWei(0.15) });
     await contract.connect(addr3).mintZikAvatar(30, { value: toWei(0.3) });
 
-    await contract.createNewPool();
     const currentPool = await contract.currentPool();
 
     expect(
@@ -178,7 +188,6 @@ describe('ZikAvatar', async function () {
     await contract.connect(addr1).mintZikAvatar(15, { value: toWei(0.15) });
     await contract.connect(addr3).mintZikAvatar(30, { value: toWei(0.3) });
 
-    await contract.createNewPool();
     await contract.connect(addr1).addToPool(
       Array(15)
         .fill(1)
@@ -196,8 +205,10 @@ describe('ZikAvatar', async function () {
 
     let requestId = await contract.callStatic.requestZikAttribute();
     await contract.requestZikAttribute();
+    await expect(contract.requestZikAttribute()).to.be.reverted;
     await vrfCoordinatorV2Mock.fulfillRandomWords(requestId, contract.address);
     await contract.generateAttribute();
+    await expect(contract.generateAttribute()).to.be.reverted;
 
     infoAvatar0 = await contract.getInfoAvatar(0);
     expect(infoAvatar0[0]).to.be.not.equal(0);
@@ -223,6 +234,9 @@ describe('ZikAvatar', async function () {
     await contract.requestZikAttribute();
     await vrfCoordinatorV2Mock.fulfillRandomWords(requestId, contract.address);
     await contract.generateAttribute();
+
+    await expect(contract.requestZikAttribute()).to.be.reverted;
+    await expect(contract.generateAttribute()).to.be.reverted;
 
     infoAvatar65 = await contract.getInfoAvatar(65);
     expect(infoAvatar65[0]).to.be.not.equal(0);

@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/interfaces/IERC721.sol";
 interface IZikAvatar is IERC721 {
     event NFTMinted(address indexed minter, uint32 indexed quantity);
     event NFTRequested(uint256 indexed requestId, uint32 indexed quantity);
-    event NFTFullfilled(
+    event NFTFulfilled(
         uint256 indexed requestId,
         uint256[] indexed randomWords
     );
